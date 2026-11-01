@@ -6787,6 +6787,10 @@ MonoBehaviour:
     orderBag: []
     CustomerName: 
     ContactNo: 
+    Date: 
+    Time: 
+    BillNo: 
+    TableNo: 0
     Total: 0
     HasPaymentMade: 0
 --- !u!4 &2094387623

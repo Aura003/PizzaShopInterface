@@ -2,6 +2,9 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
+using System.Collections.Generic;
+using System;
 
 public class UIManager : MonoBehaviour
 {
@@ -51,6 +54,8 @@ public class UIManager : MonoBehaviour
 
 
     private int orderCount;
+    private Dictionary<PizzaType, GameObject> pizzaOrderBag = new Dictionary<PizzaType, GameObject>();
+    private Dictionary<DrinkType, GameObject> drinkOrderBag = new Dictionary<DrinkType, GameObject>();
     private void OnEnable()
     {
         MenuBTN.interactable = false;
@@ -138,7 +143,11 @@ public class UIManager : MonoBehaviour
             string customerContact = CustomerContactInputField.text;
             CustomerNameTMP.text = "Customer Name : "+ customerName;
             CustomerContactTMP.text = "Contact : " + customerContact;
-            GameManager.Instance.CurrentCustomer = new Customer(customerName, customerContact);
+            Customer pizzaShopCustomer = new Customer(customerName, customerContact);
+            DateTime currentDateTime = DateTime.Now;
+            pizzaShopCustomer.Date = currentDateTime.ToString("dd/MM/yy");
+            pizzaShopCustomer.Time = currentDateTime.ToString("hh:mm tt");
+            GameManager.Instance.CurrentCustomer = pizzaShopCustomer;
         }
 
         if (GameManager.Instance.CurrentCustomer != null)
@@ -156,5 +165,14 @@ public class UIManager : MonoBehaviour
         PaymentBTN.interactable = true;
         OrderPanel.gameObject.SetActive(false);
         MenuPanel.gameObject.SetActive(false);
+        int tableNumber = UnityEngine.Random.Range(1, 8);
+        GameManager.Instance.CurrentCustomer.TableNo = tableNumber;
+        TableNoTMP.text = tableNumber.ToString();
+
+        string bill = GameManager.Instance.GenerateBillNumber();
+        GameManager.Instance.CurrentCustomer.BillNo = bill;
+        BillNoTMP.text = bill;
+
+        DateTMP.text = GameManager.Instance.CurrentCustomer.Date;
     }
 }

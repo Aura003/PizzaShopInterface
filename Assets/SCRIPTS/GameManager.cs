@@ -1,6 +1,7 @@
 using NUnit.Framework;
-using UnityEngine;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
@@ -23,10 +24,6 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //Customer MyOrder = new Customer("John","9886667812");
-        //MyOrder.AddItemsToOrder(new Pizza(PizzaType.Pepperoni));
-        //MyOrder.AddItemsToOrder(new Drink(DrinkType.Coke));
-        //MyOrder.ShowAllItems();
         CurrentCustomer = null;
     }
 
@@ -35,12 +32,23 @@ public class GameManager : MonoBehaviour
     {
         
     }
+    public string GenerateBillNumber()
+    {
+        // Take first 8 characters of a GUID (very low chance of collision)
+        string uniquePart = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+
+        return $"BILL-{uniquePart}";
+    }
 }
 [System.Serializable]
 public class Customer
 {    public List<MenuItem> orderBag = new List<MenuItem>();
     public string CustomerName;
     public string ContactNo;
+    public string Date;
+    public string Time;
+    public string BillNo;
+    public int TableNo;
     public float Total;
     public bool HasPaymentMade = false;
     public Customer(string name, string contact)
