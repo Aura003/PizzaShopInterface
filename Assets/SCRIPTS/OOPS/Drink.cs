@@ -4,10 +4,11 @@ using UnityEngine;
 public enum DrinkType { Coke=0, FruitJuice, BobaTea}
 public class Drink : MenuItem
 {
+    public int Quantity = 1;
     public DrinkType Type;
     public override float GetPrice()
     {
-        return Price;
+        return Price * Quantity;
     }
     public Drink(DrinkType type)
     {

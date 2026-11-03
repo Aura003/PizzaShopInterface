@@ -5,9 +5,10 @@ public enum PizzaType { Pepperoni=0, Margarita, Hawaiian, VegSupreme, ChickenRoy
 public class Pizza : MenuItem
 {
     public PizzaType Type;
+    public int Quantity =1;
     public override float GetPrice()
     {
-        return Price;
+        return Price * Quantity;
     }
     public Pizza(PizzaType type)
     {

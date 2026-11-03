@@ -56,6 +56,8 @@ public class UIManager : MonoBehaviour
     private int orderCount;
     private Dictionary<PizzaType, GameObject> pizzaOrderBag = new Dictionary<PizzaType, GameObject>();
     private Dictionary<DrinkType, GameObject> drinkOrderBag = new Dictionary<DrinkType, GameObject>();
+    private Pizza currentPizza;
+    private Drink currentDrink;
     private void OnEnable()
     {
         MenuBTN.interactable = false;
@@ -105,34 +107,93 @@ public class UIManager : MonoBehaviour
     {
         if (GameManager.Instance.CurrentCustomer != null)
         {
-            Pizza currentPizza = new Pizza((PizzaType)pizzaType);
-            GameManager.Instance.CurrentCustomer.AddItemsToOrder(currentPizza);
             orderCount++;
             CartItemsTMP.text = orderCount.ToString();
-            GameManager.Instance.CurrentCustomer.ShowAllItems();
+            if (GameManager.Instance.CurrentCustomer.orderBag.Count <= 0)
+            {
+                currentPizza = new Pizza((PizzaType)pizzaType);
+                GameManager.Instance.CurrentCustomer.AddItemsToOrder(currentPizza);
+            }
+            else
+            {
+                //Do not create another instance if pizza already exists
+                if (GameManager.Instance.CurrentCustomer.orderBag.Contains(currentPizza))
+                {
+                    Debug.Log("Order Already Exists");
+                }
+                else
+                {
+                    currentPizza = new Pizza((PizzaType)pizzaType);
+                    GameManager.Instance.CurrentCustomer.AddItemsToOrder(currentPizza);
+                }
+            }     
+            
+            if (pizzaOrderBag.TryGetValue((PizzaType)pizzaType, out GameObject g))
+            {
+                //increase quantity instead of creating a new entry
+                currentPizza.Quantity++;
+                Debug.LogError("Called inside tryGetvalue" +  currentPizza.Quantity);
+                float newPrice = currentPizza.GetPrice();
+                OrderDetailsUI currentOrderDetail = g.GetComponent<OrderDetailsUI>();
+                currentOrderDetail.QuantityTMP.text = currentPizza.Quantity.ToString();
+                currentOrderDetail.OrderPriceTMP.text = newPrice.ToString();
+            }
+            else
+            {
+                GameObject go = Instantiate(OrderDetailsPrefab, DetailsSpawnPointParent);
+                OrderDetailsUI details = go.GetComponent<OrderDetailsUI>();
+                details.OrderNameTMP.text = currentPizza.Name;
+                details.OrderPriceTMP.text = currentPizza.Price.ToString();
+                details.QuantityTMP.text = currentPizza.Quantity.ToString();
+                pizzaOrderBag.Add((PizzaType)pizzaType, go);
+            }
 
-            GameObject go = Instantiate(OrderDetailsPrefab, DetailsSpawnPointParent);
-            OrderDetails details = go.GetComponent<OrderDetails>();
-            details.OrderNameTMP.text = currentPizza.Name;
-            details.OrderPriceTMP.text = currentPizza.Price.ToString();
-            details.QuantityTMP.text = 1.ToString();
+
         }
     }
     public void AddDrinkToOrder(int drinkType)
     {
         if (GameManager.Instance.CurrentCustomer != null)
         {
-            Drink currentDrink = new Drink((DrinkType)drinkType);
-            GameManager.Instance.CurrentCustomer.AddItemsToOrder(currentDrink);
             orderCount++;
             CartItemsTMP.text = orderCount.ToString();
-            GameManager.Instance.CurrentCustomer.ShowAllItems();
 
-            GameObject go = Instantiate(OrderDetailsPrefab, DetailsSpawnPointParent);
-            OrderDetails details = go.GetComponent<OrderDetails>();
-            details.OrderNameTMP.text = currentDrink.Name;
-            details.OrderPriceTMP.text = currentDrink.Price.ToString();
-            details.QuantityTMP.text = 1.ToString();
+            if (GameManager.Instance.CurrentCustomer.orderBag.Count <= 0)
+            {
+                currentDrink = new Drink((DrinkType)drinkType);
+                GameManager.Instance.CurrentCustomer.AddItemsToOrder(currentDrink);
+            }
+            else
+            {
+                if (GameManager.Instance.CurrentCustomer.orderBag.Contains(currentDrink))
+                {
+                    Debug.Log("Order Already Exists");
+                }
+                else
+                {
+                    currentDrink = new Drink((DrinkType)drinkType);
+                    GameManager.Instance.CurrentCustomer.AddItemsToOrder(currentDrink);
+                }
+            }
+
+            if (drinkOrderBag.TryGetValue((DrinkType)drinkType, out GameObject g))
+            {
+                currentDrink.Quantity++;
+                float newPrice = currentDrink.GetPrice();
+                OrderDetailsUI currentOrderDetail = g.GetComponent<OrderDetailsUI>();
+                currentOrderDetail.QuantityTMP.text = currentDrink.Quantity.ToString();
+                currentOrderDetail.OrderPriceTMP.text = newPrice.ToString();
+            }
+            else
+            {
+
+                GameObject go = Instantiate(OrderDetailsPrefab, DetailsSpawnPointParent);
+                OrderDetailsUI details = go.GetComponent<OrderDetailsUI>();
+                details.OrderNameTMP.text = currentDrink.Name;
+                details.OrderPriceTMP.text = currentDrink.Price.ToString();
+                details.QuantityTMP.text = currentDrink.Quantity.ToString();
+                drinkOrderBag.Add((DrinkType)drinkType, go);
+            }
         }
     }
     public void CreateNewCustomer()
